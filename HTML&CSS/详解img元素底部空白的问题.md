@@ -8,12 +8,13 @@ CSS 的属性 vertial-align 用来指定行内元素（inline）或表格单元�
 
 vertical-align的默认值是 baseline ，这是一个西方排版才有的概念。
 
-![image](./image/vertical-align-1.png)
+![图 3](../images/52bb5751941eb9043cb1e9435b52339e73be171c579bac511ef62496da530735.png)  
 
 
 此外，对比一下vertial-align 的另外两个常见值，top 和 bottom
 
-![image](./image/vertical-align-2.png)
+![图 4](../images/cc5b157e82e6873b9dd9ac3cfafe7eef758af14b4cf759fad2295488090ec05c.png)  
+
 
 
 我们可以看到 baseline  和 bottom 之间有一定的距离。实际上， inline 的图片下面那一道空白正是 baseline 和 bottom 之间的距离。即使只有图片没有文字。只要是 inline 的图片这段空白都会存在。

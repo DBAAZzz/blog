@@ -8,25 +8,30 @@ clientWidth / clientHeight
 scrollWidth / scrollHeight
 offsetTop / scrollTop
 
-#### offsetXXX属性
+#### offsetXXX 属性
 
 `offsetWidth / offsetHeight` 是指一个元素的CSS【标准宽高】，它包括了边框、内边距、元素内容以及滚动条（如果存在的话）。
 借助MDN上的图片可以看到元素的 `offsetWidth` ，这就是这个元素在页面中【实际占有的空间】，同时当元素的形状发生变化时（放大、缩小） `offsetWidth` 就代表元素的布局宽高，并不代表实际渲染出来的宽高，如需获取渲染出来的宽高请使用 `getBoundingClientRect()` 方法来计算得到真正的 `offsetWidth `。
 
+![Dimensions-offset](https://raw.githubusercontent.com/DBAAZzz/picture/main/blog/html%26css/%E5%BC%84%E6%B8%85element%E4%B8%AD%E7%9A%84offsetheight%E3%80%81scollheight%E3%80%81clientheight...%E7%AD%89%E7%AD%89.md/376233516238593.png)
 
-#### clientXXX属性
+
+#### clientXXX 属性
 
 `clientWidth / clientHeight` 就表示一个元素内容区域的实际大小，包括元素内容以及内边距padding。
 跟上面的 `offsetWidth / offsetHeight` 相比，不包括边框和滚动条（如果存在的话）
 
+![Dimensions-client](https://raw.githubusercontent.com/DBAAZzz/picture/main/blog/html%26css/%E5%BC%84%E6%B8%85element%E4%B8%AD%E7%9A%84offsetheight%E3%80%81scollheight%E3%80%81clientheight...%E7%AD%89%E7%AD%89.md/568153516226460.png)
 
-#### scrollXXX属性
+
+#### scrollXXX 属性
 
 `scrollHeight / scrollWidth` 表示一个元素内容区域的实际大小，包括不在页面中的可滚动部分（内容和内边距）
 跟上面的 `clientHeight/clientWidth` 相比，是整个内容的大小
 
+![scrollHeight](https://raw.githubusercontent.com/DBAAZzz/picture/main/blog/html%26css/%E5%BC%84%E6%B8%85element%E4%B8%AD%E7%9A%84offsetheight%E3%80%81scollheight%E3%80%81clientheight...%E7%AD%89%E7%AD%89.md/236703616246626.png)
 
-#### xxxTop属性
+#### xxxTop 属性
 
 `offsetTop` 是当前元素顶部距离最近父元素顶部的距离，和有没有滚动条没有关系
 `scrollTop` 在有滚动条的情况下，为元素可视区域距离远离顶部的像素，也就是已经滚动了多少距离
