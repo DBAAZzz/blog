@@ -91,3 +91,56 @@ server {
 }
 
 ```
+
+
+#### 安装 Jenkins 
+
+需要先安装 Java 环境
+
+**下载依赖**
+
+```
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+```
+
+**导入秘钥**
+```
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+```
+
+**安装**
+
+```
+yum install jenkins 
+```
+
+**启动前检查是否已安装jdk**
+
+```
+java 
+```
+
+**查找jenkins安装路径**
+
+jenkins 安装路径 等于 war 包所在目录
+
+```
+rpm -ql jenkins
+```
+
+**启动jenkins**
+
+```
+systemctl start jenkins
+```
+
+**访问jenkins**
+
+记得安全组把jenkins运行的端口开了 并且防火墙的端口也要开
+
+8080端口是 jenkins 的默认端口
+
+```
+firewall-cmd --zone=public --permanent --add-port=8080/tcp; firewall-cmd --reload
+```
+
