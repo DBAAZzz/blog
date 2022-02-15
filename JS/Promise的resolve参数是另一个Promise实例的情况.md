@@ -8,6 +8,7 @@
     - [不带有任何参数](#不带有任何参数)
   - [new Promise((resolve) => resolve(new Promise)) 的情况](#new-promiseresolve--resolvenew-promise-的情况)
   - [Promise.resolve(value) 不等于 new Promise((resolve) => resolve(value))](#promiseresolvevalue-不等于-new-promiseresolve--resolvevalue)
+  - [resolve() 本质作用](#resolve-本质作用)
 
 
 ### Promise.resolve(value)
@@ -156,3 +157,10 @@ new Promise(resolve => {
 我们可以看到 then 的执行时间变正常了，第一个执行的微任务就是下面这个 .then
 
 Promise.resolve() API 如果参数是 promise 会直接返回这个 promise 实例，不会做任何处理
+
+
+### resolve() 本质作用
+
+- resolve() 是用来表示 promise 的状态为 fulfilled，相当于只是定义了一个有状态的 Promise，但并没有调用它
+- Promise 调用 then 方法的前提是 Promise 的状态为 fulfilled
+- 只有 Promise 调用 then 方法时，then 里面的函数才会被推进微任务
