@@ -81,7 +81,7 @@ console.log('one');
 
 ### new Promise((resolve) => resolve(new Promise)) 的情况
 
-当一个 Promise（p1） 的 resolve 为一个新的 Promise（p2） 时，p1 会等待 p2 的状态为 fulfilled 后再往下执行执行。
+当一个 Promise（p1） 的 resolve 为一个新的 Promise（p2） 时，p1 会等待 p2 的状态为 fulfilled 后再往下执行。
 
 
 ### Promise.resolve(value) 不等于 new Promise((resolve) => resolve(value))
