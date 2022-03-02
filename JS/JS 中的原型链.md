@@ -39,7 +39,7 @@ console.log(person.name) // Kevin
 
 ### prototype
 
-**每个函数都有一个 prototype 属性**。就是我们经常在各种例子中看到的那个 prototype ，比如：****
+**每个函数都有一个 prototype 属性**。就是我们经常在各种例子中看到的那个 prototype ，比如：
 
 ```js
 function Person() {
