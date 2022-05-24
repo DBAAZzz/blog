@@ -3,10 +3,16 @@
 - [npm 和 yarn 的区别](#npm-和-yarn-的区别)
   - [语义化版本](#语义化版本)
   - [npm install 原理](#npm-install-原理)
+    - [npm 的配置](#npm-的配置)
+    - [node_modules 目录](#node_modules-目录)
     - [早期的 npm](#早期的-npm)
     - [现在的 npm](#现在的-npm)
   - [lockfile的作用（package-lock.json 和 yarn.lock）](#lockfile的作用package-lockjson-和-yarnlock)
+    - [yarn.lock](#yarnlock)
+    - [package-lock.json](#package-lockjson)
   - [pnpm 依赖管理](#pnpm-依赖管理)
+    - [npm 暴露出来的问题](#npm-暴露出来的问题)
+    - [pnpm](#pnpm)
 
 ### 语义化版本
 
@@ -42,6 +48,17 @@ npm 中使用语义化版本来控制版本依赖包的版本，比如 ^~>=< 之
 3. 将依赖从离线镜像解压到本地缓存
 4. 将依赖从缓存拷贝到当前目录的 node_modules 目录中
 
+
+#### npm 的配置
+
+npm install 执行之后，会根据项目下的 package.json 解析依赖包之间的依赖关系然后从配置的 npm registry （.npmrc 可以配置对应的 registry）地址中搜索并下载包
+
+.npmrc 文件的优先级为
+
+**项目的 .npmrc 文件** > **用户级的 .npmrc 文件** > **全局级的 .npmrc 文件** > **npm 内置的 .npmrc 文件**
+
+
+#### node_modules 目录
 
 然后对应的包就会到达项目的 node_modules 当中。那么，这些依赖在 node_modules 内部是什么样的目录结构？
 
@@ -90,7 +107,7 @@ node_modules
    └─ package.json
 ```
 
-所有的依赖都被拍平到 node_modules 目录下，不再有深层次的嵌套关系。这样在安装新的包时，根据 node require 机制，会不停往上级的 node_modules 当中去找，如果找到**相同版本的包**就不会重复安装，解决了大量包重复安装的问题，而且依赖层级也不会太深。
+所有的依赖都被拍平到 node_modules 目录下，不再有深层次的嵌套关系。这样在安装新的包时，根据 node require 机制，会不停往上级的 node_modules 当中去找，如果找到**兼容版本的包**就不会重复安装，解决了大量包重复安装的问题，而且依赖层级也不会太深。
 
 之前的问题是解决了，但仔细想想这种扁平化的的处理方式，它真的是无懈可击吗？并不是，它照样存在诸多问题，梳理一下：
 
@@ -102,21 +119,79 @@ node_modules
 
 假如现在项目依赖两个包 foo 和 bar，这两个包的依赖又是这样的：
 
-![图 3](images/70c6f7158528fb5eb362e24ac67ad7785b53427e7302850e34b236798c7ce864.png)  
+![图 1](images/d1b7d99df5b40bd12d222c274657beb26dc1b28b10a221d67ecfb50aa601644f.png)  
+
 
 那么 npm/yarn install 的时候，通过扁平化处理之后，究竟是怎样？
 
-![图 4](images/eca564190015a1b8d85b5656a258574add4b3c7866ea51edec1d9a987c5cd088.png)  
+![图 2](images/146b370550b664aebceb0f9ec3b645e3a9b8c31444f2ece47ad3be6133306016.png)  
 
 
 答案是：都有可能。取决于 foo 和 bar 在 package.json 中的位置，如果 foo 声明在前面，那么后面的结构，否则就是前面的结构。
 
-npm 会遍历所有的节点，逐个将模块放在 node_modules 的第一层，当发现有重复模块时，则丢弃。如果遇到某些依赖版本不兼容的问题，则会将依赖放在自己的 node_modules 中。
+npm 会遍历所有的节点，逐个将模块放在 node_modules 的第一层，当发现有重复模块时，则丢弃。如果遇到某些**依赖版本不兼容**的问题，则会将依赖放在自己的 node_modules 中。
 
 这就是为什么会产生依赖结构的不确定问题，也是 lock 文件诞生的原因，无论是 package-lock.json 还是 yarn.lock，都是为了 npm install 之后产生确定的 node_modules 结构。
-
-
+ 
 
 ### lockfile的作用（package-lock.json 和 yarn.lock）
 
+lockfile 的作用有：
+
+1. 确保每次 install 时生成稳定的依赖树，锁定依赖和依赖的依赖的版本
+2. 提升 install 的速度。yarn 和 npm 都有一些诸如适配和提取公共依赖版本、扁平化的优化策略，lockfile 的存在可节省计算时间。
+
+#### yarn.lock
+
+生成和更新策略
+
+- 若 yarn.lock 不存在，安装依赖并生成 yarn.lock
+- 若 yarn.lock 存在且 package.json 中的版本范围匹配，yarn.lock 保持不变，yarn 不会检查是否有新版本
+- 若 yarn.lock 不满足 package.json 中的所有依赖项，yarn 将查找最新的满足 package.json 中约束的可用版本，并更新 yarn.lock
+
+
+#### package-lock.json
+
+npm 从 5.0 版本之后默认增加 lockfile，但早期不同版本对 lockfile 的实现有过变更
+
+1. 5.0.x 版本，不管 package.json 怎么变，install 时都会根据 lock 文件去下载
+2. 5.1.0 版本，npm install 会无视 lock 文件，去下载最新的 npm 包
+3. 5.4.2 版本，表现和 yarn.lock 一致
+
 ### pnpm 依赖管理 
+
+#### npm 暴露出来的问题
+
+- **幽灵依赖**
+就如上文中讲到的，npm3 之后采用的扁平化的结构，一些第三方包的次级依赖提升到了与第三方包同级，就有可能会出现“幽灵依赖”。“幽灵依赖”指的是在项目内引用未在 package.json 中定义的包。
+
+- **分身依赖**
+假设 foo1、foo2、依赖 lodash@3.6.0，bar 依赖 lodash@4.5.0，这时候会造成依赖冲突，解决冲突的方式会将对应的冲突包放到对应依赖目录的 node_mudules 中，类似下面结构：
+```
+node_modules
+├─ lodash@4.5.0
+│  ├─ index.js
+│  └─ package.json
+├─ foo1
+│  ├─ index.js
+│  ├─ package.json
+│  └─ node_modules
+│      └─ lodash@3.6.0
+│          ├─ index.js
+│          └─ package.json
+├─ foo2
+│  ├─ index.js
+│  ├─ package.json
+│  └─ node_modules
+│      └─ lodash@3.6.0
+│          ├─ index.js
+│          └─ package.json
+└─ bar
+   ├─ index.js
+   └─ package.json
+```
+
+#### pnpm
+
+pnpm 是一个兼容 npm 的 JavaScript 包管理工具，它在依赖安装速度和磁盘空间利用方面都有显著的改进。它与 npm/yarn 非常相似，他们都是使用相同的 package.json 文件管理依赖，同时也会像 npm/yarn 利用锁文件去确保苦跨多台机器时保证依赖版本的一致性。
+
