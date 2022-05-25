@@ -17,6 +17,8 @@
   - [caret-color](#caret-color)
   - [scroll-behavior](#scroll-behavior)
   - [:target](#target)
+  - [:focus-within](#focus-within)
+  - [:placeholder-shown](#placeholder-shown)
   - [@supports](#supports)
   - [attr()](#attr)
   - [aspect-ratio](#aspect-ratio)
@@ -98,7 +100,7 @@ CSS 属性 will-change 为 web 开发者提供了一种告知浏览器该元素�
 
 ### flow-root
 
-可以让元素拥有块级作用域。
+可以让元素拥有块级作用域，也就是 BFC。
 
 兼容性：
 
@@ -109,6 +111,8 @@ CSS 属性 will-change 为 web 开发者提供了一种告知浏览器该元素�
 
 
 ### table-cell
+
+可以给出类似于 table 标记
 
 ## caret-color
 
@@ -125,6 +129,16 @@ caret-color 可以设置插入符号的颜色，即下一个字符的可见标�
 ## :target
 
 :target 伪类可以让我们不使用任何 JavaScript 代码，只使用 :target 伪类创建一个加亮框。该技术依赖于初始化时就隐藏在页面中的链接到指定元素的锚。一旦定位，CSS 就会更改其 display 以便显示他们。
+
+## :focus-within
+
+:focus-within 是一个 CSS 伪类，表示一个元素获得焦点或者该元素的后代获得焦点。换句话说，元素本身或者它的后代匹配 :focus 伪类。
+
+该选择器非常实用。举个通俗的例子：表单中的某个 **input** 字段获得焦点时，整个表单的 **form** 元素都可被高亮。
+
+## :placeholder-shown
+
+:placeholder-shown CSS 伪类 在 input 或 textarea 元素显示 placeholder text 时生效
 
 
 ## @supports
