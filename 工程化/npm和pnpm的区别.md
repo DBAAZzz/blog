@@ -1,18 +1,20 @@
-## npm 和 yarn 的区别
+## npm 和 pnpm 的区别
 
-- [npm 和 yarn 的区别](#npm-和-yarn-的区别)
+- [npm 和 pnpm 的区别](#npm-和-pnpm-的区别)
   - [语义化版本](#语义化版本)
   - [npm install 原理](#npm-install-原理)
     - [npm 的配置](#npm-的配置)
-    - [node_modules 目录](#node_modules-目录)
+    - [node\_modules 目录](#node_modules-目录)
     - [早期的 npm](#早期的-npm)
     - [现在的 npm](#现在的-npm)
   - [lockfile的作用（package-lock.json 和 yarn.lock）](#lockfile的作用package-lockjson-和-yarnlock)
     - [yarn.lock](#yarnlock)
     - [package-lock.json](#package-lockjson)
-  - [pnpm 依赖管理](#pnpm-依赖管理)
+  - [pnpm](#pnpm)
     - [npm 暴露出来的问题](#npm-暴露出来的问题)
-    - [pnpm](#pnpm)
+    - [pnpm 解决了 npm 的问题](#pnpm-解决了-npm-的问题)
+    - [pnpm 配置](#pnpm-配置)
+    - [磁盘清理](#磁盘清理)
 
 ### 语义化版本
 
@@ -119,12 +121,12 @@ node_modules
 
 假如现在项目依赖两个包 foo 和 bar，这两个包的依赖又是这样的：
 
-![图 1](images/d1b7d99df5b40bd12d222c274657beb26dc1b28b10a221d67ecfb50aa601644f.png)  
+![图1](../images/d1b7d99df5b40bd12d222c274657beb26dc1b28b10a221d67ecfb50aa601644f.png)  
 
 
 那么 npm/yarn install 的时候，通过扁平化处理之后，究竟是怎样？
 
-![图 2](images/146b370550b664aebceb0f9ec3b645e3a9b8c31444f2ece47ad3be6133306016.png)  
+![图2](../images/146b370550b664aebceb0f9ec3b645e3a9b8c31444f2ece47ad3be6133306016.png)  
 
 
 答案是：都有可能。取决于 foo 和 bar 在 package.json 中的位置，如果 foo 声明在前面，那么后面的结构，否则就是前面的结构。
@@ -158,7 +160,7 @@ npm 从 5.0 版本之后默认增加 lockfile，但早期不同版本对 lockfil
 2. 5.1.0 版本，npm install 会无视 lock 文件，去下载最新的 npm 包
 3. 5.4.2 版本，表现和 yarn.lock 一致
 
-### pnpm 依赖管理 
+### pnpm
 
 #### npm 暴露出来的问题
 
@@ -191,7 +193,43 @@ node_modules
    └─ package.json
 ```
 
-#### pnpm
+#### pnpm 解决了 npm 的问题
 
-pnpm 是一个兼容 npm 的 JavaScript 包管理工具，它在依赖安装速度和磁盘空间利用方面都有显著的改进。它与 npm/yarn 非常相似，他们都是使用相同的 package.json 文件管理依赖，同时也会像 npm/yarn 利用锁文件去确保苦跨多台机器时保证依赖版本的一致性。
+pnpm 是一个兼容 npm 的 JavaScript 包管理工具，它在依赖安装速度和磁盘空间利用方面都有显著的改进。它与 npm/yarn 非常相似，他们都是使用相同的 package.json 文件管理依赖，同时也会像 npm/yarn 利用锁文件去确保跨多台机器时保证依赖版本的一致性。
+
+- 包安装速度极快
+- 磁盘空间利用非常高效
+
+pnpm 通过软硬链接（用了软链接和硬链接）解决了 npm 暴露出来的问题。以 `pnpm install express` 为例，安装成功后 `node_modules` 的目录为
+
+```
+└─node_modules
+   ├─.pnpm
+   └─express
+```
+
+pnpm 的 软链接就是将 node_modules 里的 express 软链接到对应 .pnpm 的 express 文件夹中。这样的通过软链接的设计既保证了不会出现幽灵依赖的问题，同时也能兼容 node 的寻找模块方式。（依赖了 express，那 node_modules 下就只有 express，没有幽灵依赖。）
+
+而 .pnpm 文件夹下的 express 则是硬链接到全局的 .pnpm-store。
+
+
+![图 1](../images/a80ce0360fe6a59b6e337d742c6ae0ac2710224f08df0cb4d36648bc7d3a0ba1.png)  
+
+#### pnpm 配置
+
+pnpm 使用 npm 的配置格式
+
+```
+pnpm config set store-dir /path/to/.pnpm-store
+```
+
+如果没有配置 store ，那么 pnpm 将自动在同一磁盘上创建 store
+
+#### 磁盘清理
+
+随着项目越来越大，版本越来越多，历史版本的资源堆积就会导致 store 目录越来越大，pnpm 提供了以下命令来清理缓存。
+执行命令 `pnpm store prune`，清除未被引用的包。例如上面引用了express@4.18.1的包在后来的某次修改中升级了版本，被更新到了5.0，那么 store 里面的 4.18.1 的 express 就就成了个不被引用的包，执行 `pnpm store prune` 就可以在 store 里面删掉它了
+
+
+
 
