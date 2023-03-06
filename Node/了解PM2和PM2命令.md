@@ -81,6 +81,14 @@ pm2 monit
 
 对于 `Node.js` 应用程序，`PM2` 包括一个自动负载均衡器，它将在每个衍生进程之间共享所有 `HTTP/Websocket/TCP/UDP` 连接。底层实现是通过 `Node.js` 的 `cluster` 模块。
 
+在集群模式下，我们要确保应用进程没有内部状态。
+
+内部状态通常是存储在进程中的一些本地数据。例如，它可以是一组 `websocket` 的连接或本地 `session`。我们可以使用 Redis 或其他数据库来共享进程间的状态。
+
+我们知道使用 restart 命令时，pm2 先杀掉进程然后重启进程，所以重启的这段时间是无法使用服务的。但是使用 reload 命令，pm2 滚动重启所有进程，并会保持至少有一个进程正在运行。
+
+**如果 reload 应用程序超时，将会退回使用 restart 。**
+
 ```shell
 # max 意味着 PM2 将自动检测可用 CPU 的数量并运行尽可能多的进程
 pm2 start start app.js -i max 
